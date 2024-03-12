@@ -165,9 +165,14 @@ public class GUIApp {
                                                 if(decimal < 2 && i == flexValue.length() - 1 && validFlex) {
                                                     double flexAmount = Double.parseDouble(flexValue);
                                                     flexAmount = Math.ceil(flexAmount * 100) / 100.0;
+                                                    if(flexAmount > 0) {
 
-                                                    // Code for subtracting flex
+                                                        // Code for subtracting flex
 
+                                                    } else {
+                                                        mode.setText("Invalid Flex Input!\nSelect Flex, Try Again");
+                                                        flexField.setVisible(false);
+                                                    }
                                                 } else if(i == flexValue.length() - 1) {
                                                     mode.setText("Invalid Flex Input!\nSelect Flex, Try Again");
                                                     flexField.setVisible(false);
