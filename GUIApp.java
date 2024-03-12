@@ -110,7 +110,6 @@ public class GUIApp {
                         while ((line = br.readLine()) != null) {
                             String[] values = line.split(",");
                             if (values[0].trim().equals(inputText.toString().trim())) {
-
                                 mealSwipe.setEnabled(true);
                                 mealSwipe.setVisible(true);
                                 tam.setEnabled(true);
