@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.*;
 
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
@@ -13,7 +14,7 @@ public class GUIApp {
 
     public GUIApp() {
         JFrame frame = new JFrame();
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout()); // Main yellow panel
         panel.setBackground(new Color(250, 189, 15));
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -57,6 +58,46 @@ public class GUIApp {
         gbc.gridy = 3;
         panel.add(imageLabel, gbc);
 
+        JButton mealSwipe = new JButton("Meal Swipe");
+        JButton tam = new JButton("TAM");
+        JButton quit = new JButton("Quit");
+
+        // Meal swipe button
+        mealSwipe.setEnabled(false);
+        mealSwipe.setVisible(false);
+        gbc.anchor = GridBagConstraints.SOUTHEAST;
+        gbc.insets = new Insets(0, 1200, 20, 50);
+        panel.add(mealSwipe, gbc);
+        mealSwipe.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+
+                frame.requestFocus();
+            }
+        });
+
+        // Tam button
+        tam.setEnabled(false);
+        tam.setVisible(false);
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.insets = new Insets(0, 1200, 20, 50);
+        panel.add(tam, gbc);
+        tam.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+
+                frame.requestFocus();
+            }
+        });
+
+        // Quit button
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.insets = new Insets(0, 1200, 50, 50);
+        panel.add(quit, gbc);
+        quit.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                System.exit(0);
+            }
+        });
+
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -69,9 +110,19 @@ public class GUIApp {
                         while ((line = br.readLine()) != null) {
                             String[] values = line.split(",");
                             if (values[0].trim().equals(inputText.toString().trim())) {
+
+                                mealSwipe.setEnabled(true);
+                                mealSwipe.setVisible(true);
+                                tam.setEnabled(true);
+                                tam.setVisible(true);
+
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
+
+
                                     int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
                                     values[3] = String.valueOf(tamsLeft); // Update the value in the array
+
+
                                 }
                                 htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
                                 htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br>"); // Append "Tam's Left: " and the current value
