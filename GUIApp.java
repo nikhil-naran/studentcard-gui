@@ -58,38 +58,42 @@ public class GUIApp {
         gbc.gridy = 3;
         panel.add(imageLabel, gbc);
 
+        JTextArea mode = new JTextArea("Meal Swipe");
         JButton mealSwipe = new JButton("Meal Swipe");
         JButton tam = new JButton("TAM");
         JButton quit = new JButton("Quit");
 
-        // Meal swipe button
-        mealSwipe.setEnabled(false);
-        mealSwipe.setVisible(false);
+        // Mode text field
         gbc.anchor = GridBagConstraints.SOUTHEAST;
-        gbc.insets = new Insets(0, 1200, 20, 50);
+        gbc.insets = new Insets(0, 1200, 10, 50);
+        mode.setBackground(new Color(250, 189, 15));
+        panel.add(mode, gbc);
+
+        // Meal swipe button
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(mealSwipe, gbc);
         mealSwipe.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-
+                mode.setText("Mode: Meal Swipe");
                 frame.requestFocus();
             }
         });
 
         // Tam button
-        tam.setEnabled(false);
-        tam.setVisible(false);
         gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.insets = new Insets(0, 1200, 20, 50);
+        gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(tam, gbc);
         tam.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
+                mode.setText("Mode: TAM");
                 frame.requestFocus();
             }
         });
 
         // Quit button
         gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.insets = new Insets(0, 1200, 50, 50);
+        gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(quit, gbc);
         quit.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -109,17 +113,17 @@ public class GUIApp {
                         while ((line = br.readLine()) != null) {
                             String[] values = line.split(",");
                             if (values[0].trim().equals(inputText.toString().trim())) {
-                                mealSwipe.setEnabled(true);
-                                mealSwipe.setVisible(true);
-                                tam.setEnabled(true);
-                                tam.setVisible(true);
-
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
 
+                                    String modeValue = mode.getText();
+                                    if(modeValue.equals("Mode: Meal Swipe")) {
 
-                                    int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
-                                    values[3] = String.valueOf(tamsLeft); // Update the value in the array
+                                    } else if(modeValue.equals("Mode: TAM")) {
+                                        int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
+                                        values[3] = String.valueOf(tamsLeft); // Update the value in the array
+                                    } else if(modeValue.equals("Mode: Flex")) {
 
+                                    }
 
                                 }
                                 htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
