@@ -83,7 +83,6 @@ public class GUIApp {
         panel.add(tam, gbc);
         tam.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-
                 frame.requestFocus();
             }
         });
