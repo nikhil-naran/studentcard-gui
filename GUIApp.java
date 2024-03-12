@@ -113,8 +113,8 @@ public class GUIApp {
         gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(flexField, gbc);
         flexField.addActionListener(new ActionListener(){
-            double flexAmount = 0;
             public void actionPerformed(ActionEvent e){
+                double flexAmount = 0;
                 String flexValue = flexField.getText();
                 boolean validFlex = true;
                 int decimal = 0;
@@ -178,10 +178,11 @@ public class GUIApp {
                                         int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
                                         values[3] = String.valueOf(tamsLeft); // Update the value in the array
                                     } else if(modeValue.equals("Mode: Flex")) {
+                                        double flexAmount = Double.parseDouble(flexField.getText());
+                                        flexAmount = Math.ceil(flexAmount * 100) / 100.0;
 
                                         // Code for flex subtraction
                                         // Use variable flexValue
-
                                     }
                                 }
                                 htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
