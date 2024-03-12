@@ -113,8 +113,35 @@ public class GUIApp {
         gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(flexField, gbc);
         flexField.addActionListener(new ActionListener(){
+            double flexAmount = 0;
             public void actionPerformed(ActionEvent e){
-                frame.requestFocus();
+                String flexValue = flexField.getText();
+                boolean validFlex = true;
+                int decimal = 0;
+                if(!flexValue.isEmpty()) {
+                    for(int i = 0; i < flexValue.length(); i++) {
+                        if(!Character.isDigit(flexValue.charAt(i)) && flexValue.charAt(i) != '.') {
+                            validFlex = false;
+                        }
+                        if(flexValue.charAt(i) == '.') {
+                            decimal++;
+                        }
+                        if(decimal < 2 && i == flexValue.length() - 1 && validFlex) {
+                            flexAmount = Double.parseDouble(flexValue);
+                            flexAmount = Math.ceil(flexAmount * 100) / 100.0;
+                            if(flexAmount > 0) {
+                                mode.setText("Mode: Flex");
+                                frame.requestFocus();
+                            } else {
+                                mode.setText("Invalid Flex Input!");
+                            }
+                        } else if(i == flexValue.length() - 1) {
+                            mode.setText("Invalid Flex Input!");
+                        }
+                    }
+                } else {
+                    mode.setText("Invalid Flex Input!");
+                }
             }
         });
 
@@ -151,37 +178,10 @@ public class GUIApp {
                                         int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
                                         values[3] = String.valueOf(tamsLeft); // Update the value in the array
                                     } else if(modeValue.equals("Mode: Flex")) {
-                                        String flexValue = flexField.getText();
-                                        boolean validFlex = true;
-                                        int decimal = 0;
-                                        if(!flexValue.isEmpty()) {
-                                            for(int i = 0; i < flexValue.length(); i++) {
-                                                if(!Character.isDigit(flexValue.charAt(i)) && flexValue.charAt(i) != '.') {
-                                                    validFlex = false;
-                                                }
-                                                if(flexValue.charAt(i) == '.') {
-                                                    decimal++;
-                                                }
-                                                if(decimal < 2 && i == flexValue.length() - 1 && validFlex) {
-                                                    double flexAmount = Double.parseDouble(flexValue);
-                                                    flexAmount = Math.ceil(flexAmount * 100) / 100.0;
-                                                    if(flexAmount > 0) {
 
-                                                        // Code for subtracting flex
+                                        // Code for flex subtraction
+                                        // Use variable flexValue
 
-                                                    } else {
-                                                        mode.setText("Invalid Flex Input!\nSelect Flex, Try Again");
-                                                        flexField.setVisible(false);
-                                                    }
-                                                } else if(i == flexValue.length() - 1) {
-                                                    mode.setText("Invalid Flex Input!\nSelect Flex, Try Again");
-                                                    flexField.setVisible(false);
-                                                }
-                                            }
-                                        } else {
-                                            mode.setText("Invalid Flex Input!\nSelect Flex, Try Again");
-                                            flexField.setVisible(false);
-                                        }
                                     }
                                 }
                                 htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
