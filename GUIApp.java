@@ -6,8 +6,31 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.event.*;
+
+class PillButton extends JButton {
+
+    public PillButton(String label) {
+        super(label);
+        setOpaque(false);
+        setContentAreaFilled(false);
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(getBackground());
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), getHeight(), getHeight());
+        g2.dispose();
+
+        super.paintComponent(g);
+    }
+}
 
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
@@ -56,9 +79,28 @@ public class GUIApp {
         panel.add(textPane, gbc);
 
         JLabel imageLabel = new JLabel();
-        gbc.gridy = 3;
+        imageLabel.setBorder(new EmptyBorder(0, 50, 0, 0));
+        gbc.gridy = 5;
         panel.add(imageLabel, gbc);
 
+        //puts blank info on screen
+        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+            String line = br.readLine();
+            if (line != null) {
+                String[] values = line.split(",");
+                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
+                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
+                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
+                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+                htmlContent.append("</font></html>"); // End the font size and the HTML content
+                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         JTextField flexField = new JTextField();
         flexField.setVisible(false);
 
@@ -69,9 +111,19 @@ public class GUIApp {
         mode.setBackground(new Color(250, 189, 15));
         panel.add(mode, gbc);
 
+
+        Color buttonColor = Color.decode("#002452");
+
+        //button spacing test
+        //gbc.gridx = 1;
+        gbc.gridy = 6;
+
+
         // Meal swipe button
-        JButton mealSwipe = new JButton("Meal Swipe");
-        gbc.gridy = GridBagConstraints.RELATIVE;
+        PillButton mealSwipe = new PillButton("Meal Swipe");
+        mealSwipe.setBackground(buttonColor);
+        mealSwipe.setForeground(Color.WHITE);
+        //gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(mealSwipe, gbc);
         mealSwipe.addActionListener(new ActionListener(){
@@ -83,7 +135,9 @@ public class GUIApp {
         });
 
         // Tam button
-        JButton tam = new JButton("TAM");
+        PillButton tam = new PillButton("TAM");
+        tam.setBackground(buttonColor);
+        tam.setForeground(Color.WHITE);
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(tam, gbc);
@@ -96,7 +150,9 @@ public class GUIApp {
         });
 
         // Flex button
-        JButton flex = new JButton("Flex");
+        PillButton flex = new PillButton("Flex");
+        flex.setBackground(buttonColor);
+        flex.setForeground(Color.WHITE);
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.insets = new Insets(0, 1200, 10, 50);
         panel.add(flex, gbc);
@@ -145,16 +201,18 @@ public class GUIApp {
             }
         });
 
-        // Quit button
-        JButton quit = new JButton("Quit");
-        gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.insets = new Insets(0, 1200, 10, 50);
-        panel.add(quit, gbc);
-        quit.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                System.exit(0);
-            }
-        });
+//        // Quit button
+//        PillButton quit = new PillButton("Quit");
+//        quit.setBackground(buttonColor);
+//        quit.setForeground(Color.WHITE);
+//        gbc.gridy = GridBagConstraints.RELATIVE;
+//        gbc.insets = new Insets(0, 1200, 20, 50);
+//        panel.add(quit, gbc);
+//        quit.addActionListener(new ActionListener(){
+//            public void actionPerformed(ActionEvent e){
+//                System.exit(0);
+//            }
+//        });
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
@@ -185,10 +243,11 @@ public class GUIApp {
                                         // Use variable flexValue
                                     }
                                 }
-                                htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-                                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br>"); // Append "Tam's Left: " and the current value
+                                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+                                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+                                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
                                 ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
-                                Image image = imageIcon.getImage().getScaledInstance(640, 480, Image.SCALE_DEFAULT); // Resize the image
+                                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
                                 imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
                                 lastScannedCode = values[0].trim(); // Update the last scanned code
                             }
@@ -219,8 +278,9 @@ public class GUIApp {
         frame.add(panel, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("GUI App");
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
+        frame.setSize(1680,1050);
         frame.setFocusable(true);
     }
 
