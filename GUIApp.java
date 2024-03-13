@@ -1,3 +1,4 @@
+import javax.crypto.SecretKey;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -12,6 +13,7 @@ import java.awt.event.*;
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
     private String lastScannedCode = null;
+    private SecretKey aesKey;  //For encryption and decryption
 
     public GUIApp() {
         JFrame frame = new JFrame();
@@ -19,6 +21,13 @@ public class GUIApp {
         panel.setBackground(new Color(250, 189, 15));
         GridBagConstraints gbc = new GridBagConstraints();
 
+        // Initialize the AES key (for encryption and decryption)
+        try {
+            aesKey = Crypto.generateKey(); // Generate or retrieve the AES key
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error initializing encryption key: " + e.getMessage(), "Encryption Error", JOptionPane.ERROR_MESSAGE);
+            return; // Exit if key generation fails
+        }
         // Create a new JPanel with a BorderLayout
         JPanel headerPanel = new JPanel(new BorderLayout());
 
@@ -166,7 +175,10 @@ public class GUIApp {
                     try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
                         String line;
                         while ((line = br.readLine()) != null) {
-                            String[] values = line.split(",");
+
+                            //THis is for decryption of the csv file
+                            String decryptedLine = Crypto.decrypt(line, aesKey);
+                            String[] values = decryptedLine.split(",");
                             if (values[0].trim().equals(inputText.toString().trim())) {
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
                                     String modeValue = mode.getText();
@@ -197,15 +209,22 @@ public class GUIApp {
                         inputText.setLength(0); // Clear the input text
                     } catch (IOException ex) {
                         ex.printStackTrace();
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
                     }
 
                     // Write the updated data back to the CSV file
                     try (PrintWriter pw = new PrintWriter(new FileWriter("test.csv"))) {
                         for (String[] row : data) {
-                            pw.println(String.join(",", row));
+                            try {
+                                String encryptedLine = Crypto.encrypt(String.join(",", row), aesKey);
+                                pw.println(encryptedLine);
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(null, "Error encrypting data: " + ex.getMessage(), "Encryption Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         }
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Error writing to the CSV file: " + ex.getMessage(), "File Error", JOptionPane.ERROR_MESSAGE);
                     }
 
                     htmlContent.append("</font></html>"); // End the font size and the HTML content
@@ -225,6 +244,67 @@ public class GUIApp {
     }
 
     public static void main(String[] args) {
+
+        //The code in comments is for testing of the security
+        /*
+        try {
+            // Generate a key
+            SecretKey aesKey = Crypto.generateKey();
+
+            // The original string
+            String originalString = "Hello, World!";
+
+            // Encrypt the original string
+            String encryptedString = Crypto.encrypt(originalString, aesKey);
+            System.out.println("Original: " + originalString);
+            System.out.println("Encrypted: " + encryptedString);
+
+            // Decrypt the encrypted string
+            String decryptedString = Crypto.decrypt(encryptedString, aesKey);
+            System.out.println("Decrypted: " + decryptedString);
+
+            // Check if the decrypted string is the same as the original string
+            if (originalString.equals(decryptedString)) {
+                System.out.println("Encryption and decryption works correctly.");
+            } else {
+                System.out.println("Encryption and decryption does not work correctly.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+*/
+/*
+        try {
+            // Generate a key
+            SecretKey aesKey = Crypto.generateKey();
+
+            // Read the CSV file
+            try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    // Encrypt the original line
+                    String encryptedLine = Crypto.encrypt(line, aesKey);
+                    System.out.println("Original: " + line);
+                    System.out.println("Encrypted: " + encryptedLine);
+
+                    // Decrypt the encrypted line
+                    String decryptedLine = Crypto.decrypt(encryptedLine, aesKey);
+                    System.out.println("Decrypted: " + decryptedLine);
+
+                    // Check if the decrypted line is the same as the original line
+                    if (line.equals(decryptedLine)) {
+                        System.out.println("Encryption and decryption works correctly.");
+                    } else {
+                        System.out.println("Encryption and decryption does not work correctly.");
+                    }
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+*/
         new GUIApp();
     }
 }
