@@ -38,6 +38,33 @@ public class GUIApp {
     private String lastScannedCode = null;
     private SecretKey aesKey;  //For encryption and decryption
 
+    //try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+    //            line = br.readLine();
+    //            if (line != null) {
+    //                String[] values = line.split(",");
+    //                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
+    //                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+    //                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+    //                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+    //                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
+    //                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
+    //                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+    //                htmlContent.append("</font></html>"); // End the font size and the HTML content
+    //                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
+    //            }
+    //        } catch (IOException ex) {
+    //            ex.printStackTrace();
+    //        }
+
+    //initializes global variables: line - string to keep track of current line, values - array to keep track of current elements in line
+    String line;
+    String[] values = new String[6]; //length 6 for: code, name, image, meal swipes, tams, flex
+
+    //update method - updates information on screen with info from variable line.
+    public void updateUI() {
+
+    }
+
     public GUIApp() {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel(new GridBagLayout()); // Main yellow panel
@@ -51,6 +78,8 @@ public class GUIApp {
             JOptionPane.showMessageDialog(null, "Error initializing encryption key: " + e.getMessage(), "Encryption Error", JOptionPane.ERROR_MESSAGE);
             return; // Exit if key generation fails
         }
+
+        // Initialize the Buffered Reader
         // Create a new JPanel with a BorderLayout
         JPanel headerPanel = new JPanel(new BorderLayout());
 
@@ -92,9 +121,9 @@ public class GUIApp {
         gbc.gridy = 5;
         panel.add(imageLabel, gbc);
 
-        //puts blank info on screen
+        //puts blank info on screen, initializes buffered reader,
         try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
-            String line = br.readLine();
+            line = br.readLine();
             if (line != null) {
                 String[] values = line.split(",");
                 StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
