@@ -13,7 +13,7 @@ import javax.swing.border.LineBorder;
 import java.awt.event.*;
 
 class PillButton extends JButton {
-
+    //ray
     public PillButton(String label) {
         super(label);
         setOpaque(false);
