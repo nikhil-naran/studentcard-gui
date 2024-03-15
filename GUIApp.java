@@ -10,6 +10,10 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
+
 
 class PillButton extends JButton {
 
@@ -35,6 +39,7 @@ class PillButton extends JButton {
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
     private String lastScannedCode = null;
+    
 
     public GUIApp() {
         JFrame frame = new JFrame();
@@ -90,8 +95,9 @@ public class GUIApp {
                 String[] values = line.split(",");
                 StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
                 htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
                 htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+                htmlContent.append("Flex $: <b>" + values[5].trim() + "</b><br><br>"); // Append "Flex: " and the current value
                 ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
                 Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
                 imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
@@ -229,12 +235,16 @@ public class GUIApp {
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
                                     String modeValue = mode.getText();
                                     if(modeValue.equals("Mode: Meal Swipe")) {
+                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1; // Subtract one from the meal swipes left
+                                        values[4] = String.valueOf(mealSwipesLeft);
 
-                                        // Code for meal swipe subtraction
+                                        
 
                                     } else if(modeValue.equals("Mode: TAM")) {
                                         int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
                                         values[3] = String.valueOf(tamsLeft); // Update the value in the array
+                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1; // Subtract one from the meal swipes left
+                                        values[4] = String.valueOf(mealSwipesLeft); // Update the value in the array
                                     } else if(modeValue.equals("Mode: Flex")) {
                                         double flexAmount = Double.parseDouble(flexField.getText());
                                         flexAmount = Math.ceil(flexAmount * 100) / 100.0;
@@ -244,8 +254,9 @@ public class GUIApp {
                                     }
                                 }
                                 htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-                                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+                                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
                                 htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+                                htmlContent.append("Flex $: <b>" + values[5].trim() + "</b><br><br>"); // Append "Flex: " and the current value
                                 ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
                                 Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
                                 imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
