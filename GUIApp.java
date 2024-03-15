@@ -38,31 +38,29 @@ public class GUIApp {
     private String lastScannedCode = null;
     private SecretKey aesKey;  //For encryption and decryption
 
-    //try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
-    //            line = br.readLine();
-    //            if (line != null) {
-    //                String[] values = line.split(",");
-    //                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
-    //                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-    //                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
-    //                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
-    //                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
-    //                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
-    //                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
-    //                htmlContent.append("</font></html>"); // End the font size and the HTML content
-    //                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
-    //            }
-    //        } catch (IOException ex) {
-    //            ex.printStackTrace();
-    //        }
+    //globalization of textpane and imagelabel, so we can implement update method for abstraction
+    private JTextPane textPane;
+    private JLabel imageLabel;
 
     //initializes global variables: line - string to keep track of current line, values - array to keep track of current elements in line
     String line;
-    String[] values = new String[6]; //length 6 for: code, name, image, meal swipes, tams, flex
+    String[] values = new String[6]; //length 6 for: code, name, image, tams, mealswipes, flex
 
     //update method - updates information on screen with info from variable line.
-    public void updateUI() {
 
+    public void updateUI() {
+        if (line != null) {
+            values = line.split(",");
+            StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
+            htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+            htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+            htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+            ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
+            Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
+            imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+            htmlContent.append("</font></html>"); // End the font size and the HTML content
+            textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
+        }
     }
 
     public GUIApp() {
@@ -77,13 +75,6 @@ public class GUIApp {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error initializing encryption key: " + e.getMessage(), "Encryption Error", JOptionPane.ERROR_MESSAGE);
             return; // Exit if key generation fails
-        }
-
-        // Initialize the Buffered Reader, used for reading lines from csv file
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("test.csv"));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         // Create a new JPanel with a BorderLayout
@@ -112,7 +103,7 @@ public class GUIApp {
         gbc.anchor = GridBagConstraints.NORTHWEST; // Position to the top left corner
         panel.add(headerPanel, gbc);
 
-        JTextPane textPane = new JTextPane();
+        textPane = new JTextPane();
         textPane.setEditable(false);
         textPane.setContentType("text/html"); // Set the content type to "text/html"
         textPane.setBorder(null); // Remove the border
@@ -122,30 +113,23 @@ public class GUIApp {
         gbc.gridy = 2;
         panel.add(textPane, gbc);
 
-        JLabel imageLabel = new JLabel();
+        imageLabel = new JLabel();
         imageLabel.setBorder(new EmptyBorder(0, 50, 0, 0));
         gbc.gridy = 5;
         panel.add(imageLabel, gbc);
 
         //puts blank info on screen, initializes buffered reader,
-        line = br.readline();
-//        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
-//            line = br.readLine();
-//            if (line != null) {
-//                String[] values = line.split(",");
-//                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
-//                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-//                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
-//                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
-//                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
-//                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
-//                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
-//                htmlContent.append("</font></html>"); // End the font size and the HTML content
-//                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
-//            }
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
+        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+            line = br.readLine();
+            line = br.readLine();
+            if (line != null) {
+                String[] values = line.split(",");
+                updateUI();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         JTextField flexField = new JTextField();
         flexField.setVisible(false);
 
@@ -162,7 +146,6 @@ public class GUIApp {
         //button spacing test
         //gbc.gridx = 1;
         gbc.gridy = 6;
-
 
         // Meal swipe button
         PillButton mealSwipe = new PillButton("Meal Swipe");
@@ -267,12 +250,10 @@ public class GUIApp {
                     StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
                     List<String[]> data = new ArrayList<>();
                     try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
-                        String line;
                         while ((line = br.readLine()) != null) {
-
                             //THis is for decryption of the csv file
                             String decryptedLine = Crypto.decrypt(line, aesKey);
-                            String[] values = decryptedLine.split(",");
+                            values = decryptedLine.split(",");
                             if (values[0].trim().equals(inputText.toString().trim())) {
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
                                     String modeValue = mode.getText();
@@ -291,12 +272,7 @@ public class GUIApp {
                                         // Use variable flexValue
                                     }
                                 }
-                                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-                                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
-                                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
-                                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
-                                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
-                                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+                                updateUI();
                                 lastScannedCode = values[0].trim(); // Update the last scanned code
                             }
                             data.add(values); // Add the row data to the list
