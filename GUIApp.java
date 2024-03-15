@@ -50,8 +50,18 @@ public class GUIApp {
         JPanel headerPanel = new JPanel(new BorderLayout());
 
 
+        JPanel dateTimePanel = new JPanel(new BorderLayout());
+        dateTimePanel.setBackground(new Color(250, 189, 15)); // Set the background color to match the panel
+        dateTimePanel.setBorder(new EmptyBorder(0, 50, 0, 0)); // Add padding to the left
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(dateTimePanel, gbc);
+
         // Create a JLabel for date and time
         JLabel dateTimeLabel = new JLabel();
+        dateTimeLabel.setFont(new Font("Open Sans", Font.PLAIN, 35));
+        dateTimeLabel.setForeground(Color.decode("#9B0000")); // Set the color of the date and time to #9B0000
+        dateTimePanel.add(dateTimeLabel, BorderLayout.EAST);
 
         // Create a Timer that updates the date and time every second
         Timer timer = new Timer(1000, new ActionListener() {
@@ -69,21 +79,22 @@ public class GUIApp {
 
                 // Update label with HTML for line break
                 dateTimeLabel.setText("<html><b>" + formattedDate + "<br><br><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + formattedTime + "</html>");
-    }
-});
-timer.start();
-dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-dateTimeLabel.setFont(new Font("Open Sans", Font.PLAIN, 35));
-dateTimeLabel.setForeground(Color.decode("#9B0000")); // Set the color of the date and time to #9B0000
-Dimension minSize = new Dimension(1100, 0); // Increase the width to move more to the right
-Dimension maxSize = new Dimension(1100, 0); // Increase the width to move more to the right
-Box.Filler filler = new Box.Filler(minSize, minSize, maxSize);
-gbc.gridx = 0;
-gbc.gridy = 0;
-panel.add(filler, gbc);
-gbc.gridx = 1;
-gbc.gridy = 2;
-panel.add(dateTimeLabel, gbc);
+            }
+        });
+        timer.start();
+
+        dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        dateTimeLabel.setFont(new Font("Open Sans", Font.PLAIN, 35));
+        dateTimeLabel.setForeground(Color.decode("#9B0000")); // Set the color of the date and time to #9B0000
+        Dimension minSize = new Dimension(1100, 0); // Increase the width to move more to the right
+        Dimension maxSize = new Dimension(1100, 0); // Increase the width to move more to the right
+        Box.Filler filler = new Box.Filler(minSize, minSize, maxSize);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(filler, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        panel.add(dateTimeLabel, gbc);
 
 
 
@@ -278,7 +289,7 @@ panel.add(dateTimeLabel, gbc);
                                         int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1; // Subtract one from the meal swipes left
                                         values[4] = String.valueOf(mealSwipesLeft);
 
-                                        
+
 
                                     } else if(modeValue.equals("Mode: TAM")) {
                                         int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
@@ -320,6 +331,10 @@ panel.add(dateTimeLabel, gbc);
 
                     htmlContent.append("</font></html>"); // End the font size and the HTML content
                     textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
+
+                    // Revalidate and repaint the panel
+                    panel.revalidate();
+                    panel.repaint();
                 } else {
                     inputText.append(keyChar);
                 }
