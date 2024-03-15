@@ -79,7 +79,13 @@ public class GUIApp {
             return; // Exit if key generation fails
         }
 
-        // Initialize the Buffered Reader
+        // Initialize the Buffered Reader, used for reading lines from csv file
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("test.csv"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Create a new JPanel with a BorderLayout
         JPanel headerPanel = new JPanel(new BorderLayout());
 
@@ -122,23 +128,24 @@ public class GUIApp {
         panel.add(imageLabel, gbc);
 
         //puts blank info on screen, initializes buffered reader,
-        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
-            line = br.readLine();
-            if (line != null) {
-                String[] values = line.split(",");
-                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
-                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
-                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
-                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
-                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
-                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
-                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
-                htmlContent.append("</font></html>"); // End the font size and the HTML content
-                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        line = br.readline();
+//        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+//            line = br.readLine();
+//            if (line != null) {
+//                String[] values = line.split(",");
+//                StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
+//                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+//                htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b><br><br>"); // Append "Tam's Left: " and the current value
+//                htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+//                ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
+//                Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
+//                imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+//                htmlContent.append("</font></html>"); // End the font size and the HTML content
+//                textPane.setText(htmlContent.toString()); // Set the HTML content to the JTextPane
+//            }
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
         JTextField flexField = new JTextField();
         flexField.setVisible(false);
 
