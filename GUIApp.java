@@ -328,6 +328,12 @@ public class GUIApp {
             public void keyTyped(KeyEvent e) {
                 char keyChar = e.getKeyChar();
                 if (keyChar == '\n') {
+                    if (!isValidCode(inputText.toString())) {
+                        // Display an error message
+                        JOptionPane.showMessageDialog(frame, "Invalid QR Code!", "Error", JOptionPane.ERROR_MESSAGE);
+                        inputText.setLength(0); // Clear the input text
+                        return;
+                    }
                     StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
                     List<String[]> data = new ArrayList<>();
                     try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
@@ -446,6 +452,20 @@ public class GUIApp {
                 e.printStackTrace();
             }
         }
+    }
+    private boolean isValidCode(String inputCode) {
+        try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                if (values[0].trim().equals(inputCode.trim())) {
+                    return true;
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     public static void main(String[] args) {
