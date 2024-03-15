@@ -121,7 +121,7 @@ public class GUIApp {
         //puts blank info on screen, initializes buffered reader,
         try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
             line = br.readLine();
-            line = br.readLine();
+            line = br.readLine();line = br.readLine(); //for testing, switching to 3rd user
             if (line != null) {
                 String[] values = line.split(",");
                 updateUI();
