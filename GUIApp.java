@@ -12,6 +12,9 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalTime;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 
 class PillButton extends JButton {
@@ -38,6 +41,10 @@ class PillButton extends JButton {
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
     private String lastScannedCode = null;
+    private int codesScannedLastHour = 0;
+    private int codesScannedToday = 0;
+    private final String dataFilePath = "data.txt"; // File to store the data
+
     
 
     public GUIApp() {
@@ -48,20 +55,74 @@ public class GUIApp {
 
         // Create a new JPanel with a BorderLayout
         JPanel headerPanel = new JPanel(new BorderLayout());
+        //read data from file
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(dataFilePath));
+            if (lines.size() >= 2) {
+                codesScannedLastHour = Integer.parseInt(lines.get(0));
+                codesScannedToday = Integer.parseInt(lines.get(1));
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        // Add a window listener to save the data when the program is closing
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter(dataFilePath))) {
+                    pw.println(codesScannedLastHour);
+                    pw.println(codesScannedToday);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        // Create a new JPanel for the codes scanned labels
+        JPanel codesScannedPanel = new JPanel(new GridLayout(3, 1));
+        codesScannedPanel.setBackground(new Color(250, 189, 15));
+        codesScannedPanel.setBorder(new EmptyBorder(0, 0, 0, 0));// Set the background color to match the panel
+         // Add padding to the left
+
+        // Create the labels
+        JLabel codesScannedLastHourLabel = new JLabel("Codes scanned in the last hour: 0");
+        JLabel codesScannedTodayLabel = new JLabel("Codes scanned today: 0");
+        JLabel spacingLabel = new JLabel(" ");
+        codesScannedTodayLabel.setForeground(Color.decode("#9B0000")); // Set the color of the label to #9B0000
+        codesScannedLastHourLabel.setForeground(Color.decode("#9B0000")); // Set the color of the label to #9B0000
+        codesScannedLastHourLabel.setFont(new Font("Open Sans", Font.PLAIN, 30));
+        codesScannedTodayLabel.setFont(new Font("Open Sans", Font.PLAIN, 30));
 
 
+        // Add the labels to the panel
+        codesScannedPanel.add(codesScannedLastHourLabel);
+        codesScannedPanel.add(spacingLabel);
+        codesScannedPanel.add(codesScannedTodayLabel);
+
+
+        // Add the panel to the main panel
+        gbc.gridx = 1;
+        gbc.gridy = 5; // Adjust the grid y position as needed
+        panel.add(codesScannedPanel, gbc);
+
+
+
+
+
+        // Create a new JPanel with a BorderLayout
         JPanel dateTimePanel = new JPanel(new BorderLayout());
         dateTimePanel.setBackground(new Color(250, 189, 15)); // Set the background color to match the panel
         dateTimePanel.setBorder(new EmptyBorder(0, 50, 0, 0)); // Add padding to the left
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(dateTimePanel, gbc);
-
         // Create a JLabel for date and time
         JLabel dateTimeLabel = new JLabel();
         dateTimeLabel.setFont(new Font("Open Sans", Font.PLAIN, 35));
         dateTimeLabel.setForeground(Color.decode("#9B0000")); // Set the color of the date and time to #9B0000
         dateTimePanel.add(dateTimeLabel, BorderLayout.EAST);
+
+
+
 
         // Create a Timer that updates the date and time every second
         Timer timer = new Timer(1000, new ActionListener() {
