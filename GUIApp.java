@@ -1,8 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.*;
+import java.sql.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +49,47 @@ public class GUIApp {
         // Create a new JPanel with a BorderLayout
         JPanel headerPanel = new JPanel(new BorderLayout());
 
+
+        // Create a JLabel for date and time
+        JLabel dateTimeLabel = new JLabel();
+
+        // Create a Timer that updates the date and time every second
+        Timer timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Get current date and time
+                LocalDate date = LocalDate.now();
+                LocalTime time = LocalTime.now();
+
+                // Format date and time
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+                String formattedDate = date.format(dateFormatter);
+                String formattedTime = time.format(timeFormatter);
+
+                // Update label with HTML for line break
+                dateTimeLabel.setText("<html><b>" + formattedDate + "<br><br><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + formattedTime + "</html>");
+    }
+});
+timer.start();
+dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+dateTimeLabel.setFont(new Font("Open Sans", Font.PLAIN, 35));
+dateTimeLabel.setForeground(Color.decode("#9B0000")); // Set the color of the date and time to #9B0000
+Dimension minSize = new Dimension(1100, 0); // Increase the width to move more to the right
+Dimension maxSize = new Dimension(1100, 0); // Increase the width to move more to the right
+Box.Filler filler = new Box.Filler(minSize, minSize, maxSize);
+gbc.gridx = 0;
+gbc.gridy = 0;
+panel.add(filler, gbc);
+gbc.gridx = 1;
+gbc.gridy = 2;
+panel.add(dateTimeLabel, gbc);
+
+
+
+
+
+
         // Add logo to the WEST (left) of the header panel
         ImageIcon logoIcon = new ImageIcon("logo.png"); // Replace with your logo file path
         Image logoImage = logoIcon.getImage().getScaledInstance(768/4, 584/4, Image.SCALE_SMOOTH); // Resize the image
@@ -94,7 +134,7 @@ public class GUIApp {
             if (line != null) {
                 String[] values = line.split(",");
                 StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
-                htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+                htmlContent.append("<font color=\"black\">Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
                 htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
                 htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
                 htmlContent.append("Flex $: <b>" + values[5].trim() + "</b><br><br>"); // Append "Flex: " and the current value
