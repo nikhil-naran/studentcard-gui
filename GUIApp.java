@@ -4,6 +4,7 @@ import java.io.*;
 import java.sql.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -41,13 +42,15 @@ class PillButton extends JButton {
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
     private String lastScannedCode = null;
-    private int codesScannedLastHour = 0;
     private int codesScannedToday = 0;
     private final String dataFilePath = "data.txt"; // File to store the data
-
+    private final LinkedList<Long> codesScannedTimes = new LinkedList<>();
+    private JLabel codesScannedLastHourLabel;
+    private JLabel codesScannedTodayLabel;
     
 
     public GUIApp() {
+        loadDataFromFile();
         JFrame frame = new JFrame();
         JPanel panel = new JPanel(new GridBagLayout()); // Main yellow panel
         panel.setBackground(new Color(250, 189, 15));
@@ -59,24 +62,12 @@ public class GUIApp {
         try {
             List<String> lines = Files.readAllLines(Paths.get(dataFilePath));
             if (lines.size() >= 2) {
-                codesScannedLastHour = Integer.parseInt(lines.get(0));
-                codesScannedToday = Integer.parseInt(lines.get(1));
+                codesScannedToday = Integer.parseInt(lines.get(0));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        // Add a window listener to save the data when the program is closing
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                try (PrintWriter pw = new PrintWriter(new FileWriter(dataFilePath))) {
-                    pw.println(codesScannedLastHour);
-                    pw.println(codesScannedToday);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+
         // Create a new JPanel for the codes scanned labels
         JPanel codesScannedPanel = new JPanel(new GridLayout(3, 1));
         codesScannedPanel.setBackground(new Color(250, 189, 15));
@@ -364,6 +355,11 @@ public class GUIApp {
                                         // Code for flex subtraction
                                         // Use variable flexValue
                                     }
+                                    codesScannedTimes.add(System.currentTimeMillis());
+                                    removeOldEntries();
+                                    codesScannedToday++;
+                                    codesScannedLastHourLabel.setText("Codes scanned in the last hour: " + codesScannedTimes.size());
+                                    codesScannedTodayLabel.setText("Codes scanned today: " + codesScannedToday);
                                 }
                                 htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
                                 htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
@@ -396,11 +392,27 @@ public class GUIApp {
                     // Revalidate and repaint the panel
                     panel.revalidate();
                     panel.repaint();
+
                 } else {
                     inputText.append(keyChar);
                 }
             }
         });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter(dataFilePath))) {
+                    pw.println(codesScannedToday);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                saveDataToFile();
+            }
+        });
+
+        // Method to remove entries that are more than an hour old
+
+
 
         frame.add(panel, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -409,6 +421,31 @@ public class GUIApp {
         frame.setVisible(true);
         frame.setSize(1680,1050);
         frame.setFocusable(true);
+    }
+    private void removeOldEntries() {
+        long oneHourAgo = System.currentTimeMillis() - 60 * 60 * 1000;
+        while (!codesScannedTimes.isEmpty() && codesScannedTimes.getFirst() < oneHourAgo) {
+            codesScannedTimes.removeFirst();
+        }
+    }
+
+    // Method to save the data to a file
+    private void saveDataToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("codesScannedTimes.dat"))) {
+            oos.writeObject(codesScannedTimes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void loadDataFromFile() {
+        File file = new File("codesScannedTimes.dat");
+        if (file.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                codesScannedTimes.addAll((LinkedList<Long>) ois.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {
