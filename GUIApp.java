@@ -42,7 +42,7 @@ class PillButton extends JButton {
 public class GUIApp {
     private final StringBuilder inputText = new StringBuilder();
     private String lastScannedCode = null;
-    private int codesScannedToday = 0;
+    private int codesScannedToday;
     private final String dataFilePath = "data.txt"; // File to store the data
     private final LinkedList<Long> codesScannedTimes = new LinkedList<>();
     private JLabel codesScannedLastHourLabel;
@@ -75,8 +75,8 @@ public class GUIApp {
          // Add padding to the left
 
         // Create the labels
-        JLabel codesScannedLastHourLabel = new JLabel("Codes scanned in the last hour: 0");
-        JLabel codesScannedTodayLabel = new JLabel("Codes scanned today: 0");
+        JLabel codesScannedLastHourLabel = new JLabel("Codes scanned in the last hour: "+ codesScannedTimes.size());
+        JLabel codesScannedTodayLabel = new JLabel("Codes scanned today:"+ codesScannedToday);
         JLabel spacingLabel = new JLabel(" ");
         codesScannedTodayLabel.setForeground(Color.decode("#9B0000")); // Set the color of the label to #9B0000
         codesScannedLastHourLabel.setForeground(Color.decode("#9B0000")); // Set the color of the label to #9B0000
@@ -344,28 +344,55 @@ public class GUIApp {
                                 if (!values[0].trim().equals(lastScannedCode)) { // Check if the current scanned code is different from the last scanned code
                                     String modeValue = mode.getText();
                                     if(modeValue.equals("Mode: Meal Swipe")) {
-                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1; // Subtract one from the meal swipes left
-                                        values[4] = String.valueOf(mealSwipesLeft);
+                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1;
+                                        if (mealSwipesLeft < 0) {
+                                            JOptionPane.showMessageDialog(frame, "No meal swipes left!", "Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                        else {
+                                            values[4] = String.valueOf(mealSwipesLeft); // Update the value in the array
+                                            codesScannedTimes.add(System.currentTimeMillis());
+                                            removeOldEntries();
+                                            codesScannedToday++;
+                                            codesScannedLastHourLabel.setText("Codes scanned in the last hour: " + codesScannedTimes.size());
+                                            codesScannedTodayLabel.setText("Codes scanned today: " + codesScannedToday);
+                                        }
 
 
 
                                     } else if(modeValue.equals("Mode: TAM")) {
-                                        int tamsLeft = Integer.parseInt(values[3].trim()) - 1; // Subtract one from the tams left
-                                        values[3] = String.valueOf(tamsLeft); // Update the value in the array
-                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1; // Subtract one from the meal swipes left
-                                        values[4] = String.valueOf(mealSwipesLeft); // Update the value in the array
+                                        int tamsLeft = Integer.parseInt(values[3].trim()) - 1;
+                                        int mealSwipesLeft = Integer.parseInt(values[4].trim()) - 1;
+                                        // Subtract one from the tams left
+                                        if (tamsLeft < 0 || mealSwipesLeft < 0) {
+                                            JOptionPane.showMessageDialog(frame, "No TAM's or Meal Swipes left!", "Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                        else {
+                                            values[3] = String.valueOf(tamsLeft);
+                                            values[4] = String.valueOf(mealSwipesLeft); // Update the value in the array
+                                            codesScannedTimes.add(System.currentTimeMillis());
+                                            removeOldEntries();
+                                            codesScannedToday++;
+                                            codesScannedLastHourLabel.setText("Codes scanned in the last hour: " + codesScannedTimes.size());
+                                            codesScannedTodayLabel.setText("Codes scanned today: " + codesScannedToday);
+                                        }
                                     } else if(modeValue.equals("Mode: Flex")) {
                                         double flexAmount = Double.parseDouble(flexField.getText());
                                         flexAmount = Math.ceil(flexAmount * 100) / 100.0;
-
-                                        // Code for flex subtraction
-                                        // Use variable flexValue
+                                        double currentBalance = Double.parseDouble(values[5].trim());
+                                        if (currentBalance < flexAmount) {
+                                            JOptionPane.showMessageDialog(frame, "Insufficient balance!", "Error", JOptionPane.ERROR_MESSAGE);
+                                            return;
+                                        }
+                                        currentBalance -= flexAmount;
+                                        values[5] = String.format("%.2f", currentBalance);
+                                        codesScannedTimes.add(System.currentTimeMillis());
+                                        removeOldEntries();
+                                        codesScannedToday++;
+                                        codesScannedLastHourLabel.setText("Codes scanned in the last hour: " + codesScannedTimes.size());
+                                        codesScannedTodayLabel.setText("Codes scanned today: " + codesScannedToday);
+                                        flexField.setText("");
                                     }
-                                    codesScannedTimes.add(System.currentTimeMillis());
-                                    removeOldEntries();
-                                    codesScannedToday++;
-                                    codesScannedLastHourLabel.setText("Codes scanned in the last hour: " + codesScannedTimes.size());
-                                    codesScannedTodayLabel.setText("Codes scanned today: " + codesScannedToday);
+
                                 }
                                 htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
                                 htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
@@ -451,6 +478,14 @@ public class GUIApp {
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(dataFilePath));
+            if (!lines.isEmpty()) {
+                codesScannedToday = Integer.parseInt(lines.get(0));
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
     private boolean isValidCode(String inputCode) {
