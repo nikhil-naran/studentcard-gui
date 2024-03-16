@@ -16,7 +16,10 @@ import java.time.LocalTime;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.security.spec.*;
 
 class PillButton extends JButton {
 
@@ -47,7 +50,81 @@ public class GUIApp {
     private final LinkedList<Long> codesScannedTimes = new LinkedList<>();
     private JLabel codesScannedLastHourLabel;
     private JLabel codesScannedTodayLabel;
-    
+
+
+    // Method for encrypting
+    private void encryptFile(String inputFile, String outputFile, String password) throws IOException, GeneralSecurityException {
+        System.out.println("Starting encryption: " + inputFile); // Print the input file name
+
+        try (FileInputStream inFile = new FileInputStream(inputFile);
+             FileOutputStream outFile = new FileOutputStream(outputFile)) {
+            // Prepare the password-based encryption cipher with MD5 (Message Digest Algorithm) and DES (Data Encryption Standard)
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+            SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray()));// Generate a secret key from the password
+            // Generate a random salt (random data used as an additional input to a one-way function that hashes data)
+            byte[] salt = new byte[8];
+            SecureRandom random = new SecureRandom(); // Create a new secure random number generator
+            random.nextBytes(salt); // Generate random bytes and store them in the salt array
+
+            // Specify the cipher parameters with salt and iteration count
+            PBEParameterSpec parameterSpec = new PBEParameterSpec(salt, 100); // With 100 iterations
+
+            // Initialize the cipher for encryption
+            Cipher cipher = Cipher.getInstance("PBEWithMD5AndDES");
+            cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
+
+            // Write the salt to the output file (needed for decryption)
+            outFile.write(salt);
+
+            // Read the file and encrypt its bytes
+            byte[] input = new byte[64];
+            int bytesRead;
+            while ((bytesRead = inFile.read(input)) != -1) {
+                byte[] output = cipher.update(input, 0, bytesRead);
+                if (output != null) outFile.write(output);
+            }
+
+            byte[] output = cipher.doFinal();
+            if (output != null) outFile.write(output);
+            System.out.println("Encryption completed successfully." + outputFile);
+        }
+    }
+
+    // Method for decrypting
+    private void decryptFile(String inputFile, String outputFile, String password) throws IOException, GeneralSecurityException {
+        System.out.println("Starting decryption..." + inputFile);
+
+        try (FileInputStream inFile = new FileInputStream(inputFile);
+             FileOutputStream outFile = new FileOutputStream(outputFile)) {
+            // Read the previously stored salt
+            byte[] salt = new byte[8];
+            inFile.read(salt);
+
+            // Prepare the PBE cipher with MD5 and DES
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+            SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray()));
+
+            // Specify the cipher parameters with the salt and iteration count
+            PBEParameterSpec parameterSpec = new PBEParameterSpec(salt, 100);
+
+            // Initialize the cipher for decryption
+            Cipher cipher = Cipher.getInstance("PBEWithMD5AndDES");
+            cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
+
+            // Read the file and decrypt its bytes
+            byte[] input = new byte[64];
+            int bytesRead; // Number of bytes read
+            while ((bytesRead = inFile.read(input)) != -1) { // Read the input file
+                byte[] output = cipher.update(input, 0, bytesRead); // Decrypt the input bytes
+                if (output != null) outFile.write(output); // Write the decrypted bytes to the output file
+            }
+
+            byte[] output = cipher.doFinal();// Finish the decryption process
+            if (output != null) outFile.write(output);// Write the final decrypted bytes to the output file
+            System.out.println("Decryption completed successfully:" + outputFile); //Print
+        }
+    }
+
 
     public GUIApp() {
         loadDataFromFile();
@@ -72,7 +149,7 @@ public class GUIApp {
         JPanel codesScannedPanel = new JPanel(new GridLayout(3, 1));
         codesScannedPanel.setBackground(new Color(250, 189, 15));
         codesScannedPanel.setBorder(new EmptyBorder(0, 0, 0, 0));// Set the background color to match the panel
-         // Add padding to the left
+        // Add padding to the left
 
         // Create the labels
         JLabel codesScannedLastHourLabel = new JLabel("Codes scanned in the last hour: "+ codesScannedTimes.size());
@@ -82,8 +159,6 @@ public class GUIApp {
         codesScannedLastHourLabel.setForeground(Color.decode("#9B0000")); // Set the color of the label to #9B0000
         codesScannedLastHourLabel.setFont(new Font("Open Sans", Font.PLAIN, 30));
         codesScannedTodayLabel.setFont(new Font("Open Sans", Font.PLAIN, 30));
-
-
         // Add the labels to the panel
         codesScannedPanel.add(codesScannedLastHourLabel);
         codesScannedPanel.add(spacingLabel);
@@ -190,6 +265,13 @@ public class GUIApp {
         imageLabel.setBorder(new EmptyBorder(0, 50, 0, 0));
         gbc.gridy = 5;
         panel.add(imageLabel, gbc);
+
+        // Encryption process
+        try {
+            encryptFile("test.csv", "decrypt.csv", " Test1234!@#$"); //DO NOT CHANGE THE PASSWORD!!!
+        } catch (IOException | GeneralSecurityException e) {
+            e.printStackTrace();
+        }
 
         //puts blank info on screen
         try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
@@ -336,6 +418,15 @@ public class GUIApp {
                     }
                     StringBuilder htmlContent = new StringBuilder("<html><font size=\"7\">"); // Start the HTML content and set the font size
                     List<String[]> data = new ArrayList<>();
+
+                    //Decryption process
+                    try {
+                        decryptFile("decrypt.csv", "test.csv", " Test1234!@#$");
+                    } catch (IOException | GeneralSecurityException ex) {
+                        ex.printStackTrace();
+                    }
+
+
                     try (BufferedReader br = new BufferedReader(new FileReader("test.csv"))) {
                         String line;
                         while ((line = br.readLine()) != null) {
