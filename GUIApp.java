@@ -340,6 +340,20 @@ public class GUIApp {
             }
         });
 
+        PillButton verification = new PillButton("Verification");
+        verification.setBackground(buttonColor);
+        verification.setForeground(Color.WHITE);
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.insets = new Insets(0, 1200, 10, 50);
+        panel.add(verification, gbc);
+        verification.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                mode.setText("Mode: Verification");
+                flexField.setVisible(false);
+                frame.requestFocus();
+            }
+        });
+
         // Flex button
         PillButton flex = new PillButton("Flex");
         flex.setBackground(buttonColor);
@@ -473,6 +487,16 @@ public class GUIApp {
                                         if (currentBalance < flexAmount) {
                                             JOptionPane.showMessageDialog(frame, "Insufficient balance!", "Error", JOptionPane.ERROR_MESSAGE);
                                             return;
+                                        } if(modeValue.equals("Mode: Verification")) {
+                                            // Just display the user's info without subtracting a meal swipe or tam
+                                            htmlContent.append("<font color=\"black\"><br>Name: <b>" + values[1].trim() + "</b></font><br><br>"); // Prepend "Name: " to the output and add two line breaks, and set the color to black
+                                            htmlContent.append("Tam's Left: <b>" + values[3].trim() + "</b>&nbsp;&nbsp;&nbsp;&nbsp;"); // Append "Tam's Left: " and the current value
+                                            htmlContent.append("Meal Swipes Left: <b>" + values[4].trim() + "</b><br><br>"); // Append "Meal Swipes Left: " and the current value
+                                            htmlContent.append("Flex $: <b>" + values[5].trim() + "</b><br><br>"); // Append "Flex: " and the current value
+                                            ImageIcon imageIcon = new ImageIcon(values[2].trim()); // Read the image name from the third column
+                                            Image image = imageIcon.getImage().getScaledInstance(1000/4, 1392/4, Image.SCALE_DEFAULT); // Resize the image
+                                            imageLabel.setIcon(new ImageIcon(image)); // Display the resized image
+                                            lastScannedCode = values[0].trim(); // Update the last scanned code
                                         }
                                         currentBalance -= flexAmount;
                                         values[5] = String.format("%.2f", currentBalance);
