@@ -251,8 +251,10 @@ public class GUIApp {
         gbc.anchor = GridBagConstraints.NORTHWEST; // Position to the top left corner
         panel.add(headerPanel, gbc);
 
+
         JTextPane textPane = new JTextPane();
         textPane.setEditable(false);
+        textPane.setFocusable(false);
         textPane.setContentType("text/html"); // Set the content type to "text/html"
         textPane.setBorder(null); // Remove the border
         textPane.setBackground(new Color(250, 189, 15)); // Set the background color to match the panel
